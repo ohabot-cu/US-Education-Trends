@@ -6,7 +6,7 @@ execute:
   echo: true
 
 book:
-  title: "US Grade School Education Score Trends"
+  title: "US Education Score Trends"
   author:
     - Omri Habot (oh2263)
     - Vishwa Bhatt (vmb2146)
@@ -26,7 +26,7 @@ book:
 
 format:
   html:
-    theme: cosmo
+    theme: morph
     code-fold: true
 
 
