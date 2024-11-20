@@ -6,11 +6,12 @@ execute:
   echo: true
 
 book:
-  title: "YOUR PROJECT TITLE"
+  title: "US Education Score Trends"
   author:
-    - AUTHOR1 (UNI1)
-    - AUTHOR2 (UNI2)
-  repo-url: https://github.com/YOUR_GITHUB_ACCOUNT/REPO_NAME
+    - Omri Habot (oh2263)
+    - Vishwa Bhatt (vmb2146)
+    - Anna Micros (am6529)
+  repo-url: https://ohabot-cu.github.io/US-Education-Trends/
   date: today
   page-footer:
     right: |
