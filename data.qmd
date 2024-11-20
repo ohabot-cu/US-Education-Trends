@@ -3,3 +3,132 @@
 ## Description
 
 ## Missing value analysis
+
+```{r}
+#| echo: false
+
+library(tidyverse)
+library(lubridate)
+```
+
+
+### Mathematics Data
+
+#### Disability
+```{r, fig.width=10}
+disability <- read_csv("data/mathematics/Mathematics, Age 9, Disability sta.csv", show_col_types = FALSE)
+colnames(disability) <- disability[8, 1:4]
+disability <- disability[9:18, 1:4] |>
+  mutate(Year = ymd(Year, truncated = 2L))
+
+ggplot(disability, aes(x = Year, y = `Average scale score`, colour = `Disability status of student, including those with 504 plan`)) +
+  geom_point() +
+  geom_line(aes(group = `Disability status of student, including those with 504 plan`)) +
+  scale_x_date(breaks = as.Date(paste0(seq(2004, 2024, 4), "-01-01")), date_labels = "%Y") +
+  theme_minimal() + 
+  theme(legend.position = "bottom")
+```
+
+The data appears to be collected roughly every four years. However, data in 2016 is missing for the disability category here, as well as in most of the other categories.
+
+#### Gender
+```{r}
+gender <- read_csv("data/mathematics/Mathematics, Age 9, Gender.csv", show_col_types = FALSE)
+colnames(gender) <- gender[8, 1:4]
+gender <- gender[9:36, 1:4] |>
+  mutate(Year = ymd(Year, truncated = 2L))
+
+ggplot(gender, aes(x = Year, y = `Average scale score`, colour = Gender)) +
+  geom_point() +
+  geom_line(aes(group = Gender)) +
+  scale_x_date(breaks = as.Date(paste0(seq(1978, 2024, 4), "-01-01")), date_labels = "%Y") +
+  theme_minimal() + 
+  theme(legend.position = "bottom")
+```
+There appears to be missing data in 2016 in the gender category as well. There is also a vertical segment in the `Male` timeseries which is due to a transition from an "original" exam to a new exam version. The vertical segment reflects recorded values for the two versions of the exam in the same year. The scores for `Female` students were equivalent in both versions, so there is no vertical segment in that particular line graph.
+
+
+#### National School
+```{r, fig.width=8}
+national_school <- read_csv("data/mathematics/Mathematics, Age 9, National School.csv", show_col_types = FALSE)
+colnames(national_school) <- national_school[8, 1:4]
+national_school <- national_school[9:26, 1:4] |>
+  mutate(Year = ymd(Year, truncated = 2L))
+
+ggplot(national_school, aes(x = Year, y = `Average scale score`, colour = `National School Lunch Program eligibility, 3 categories`)) +
+  geom_point() +
+  geom_line(aes(group = `National School Lunch Program eligibility, 3 categories`)) +
+  scale_x_date(breaks = as.Date(paste0(seq(2004, 2024, 4), "-01-01")), date_labels = "%Y") +
+  theme_minimal() + 
+  theme(legend.position = "bottom")
+```
+
+Again we see vertical segments due to the transition between exam versions, and we also see missing data in 2016.
+
+#### Race Ethnicity
+```{r, fig.height=7}
+race <- read_csv("data/mathematics/Mathematics, Age 9, Race ethnicity.csv", show_col_types = FALSE)
+colnames(race) <- race[8, 1:4]
+race <- race[9:92, 1:4] |>
+  mutate(Year = ymd(Year, truncated = 2L))
+
+ggplot(race, aes(x = Year, y = `Average scale score`, colour = `Race/ethnicity (6 categories)`)) +
+  geom_point() +
+  geom_line(aes(group = `Race/ethnicity (6 categories)`)) +
+  scale_x_date(breaks = as.Date(paste0(seq(1978, 2024, 4), "-01-01")), date_labels = "%Y") +
+  theme_minimal() + 
+  theme(legend.position = "bottom")
+```
+This graph also contains vertical line segments at year 2004, as well as missing data in 2016. Another interesting thing to note here is the special character, which signifies that the reporting standards were not met, at the bottom of the y-axis. This primarily affectts the Unclassified and American Indian or Alaska Native students.
+
+#### School Region
+```{r}
+region <- read_csv("data/mathematics/Mathematics, Age 9, Region of the.csv", show_col_types = FALSE)
+colnames(region) <- region[8, 1:4]
+region <- region[9:37, 1:4] |>
+  mutate(Year = ymd(Year, truncated = 2L))
+
+ggplot(region, aes(x = Year, y = `Average scale score`, colour = `Region of the country`)) +
+  geom_point() +
+  geom_line(aes(group = `Region of the country`)) +
+  scale_x_date(breaks = as.Date(paste0(seq(2004, 2024, 4), "-01-01")), date_labels = "%Y") +
+  theme_minimal() + 
+  theme(legend.position = "bottom")
+```
+Here we see the same missing data patterns as before: vertical segments at 2004, missing data in 2016, and reporting standards not mett for the `DoDEA International` region of the country.
+
+
+#### School Location
+```{r}
+location <- read_csv("data/mathematics/Mathematics, Age 9, School location.csv", show_col_types = FALSE)
+colnames(location) <- location[8, 1:4]
+location <- location[9:24, 1:4] |>
+  mutate(Year = ymd(Year, truncated = 2L))
+
+ggplot(location, aes(x = Year, y = `Average scale score`, colour = `School location, 4 categories`)) +
+  geom_point() +
+  geom_line(aes(group = `School location, 4 categories`)) +
+  scale_x_date(breaks = as.Date(paste0(seq(2008, 2024, 4), "-01-01")), date_labels = "%Y") +
+  theme_minimal() + 
+  theme(legend.position = "bottom")
+```
+In this category, the only notable observation is missing data in 2016.
+
+#### Status as English Learner
+```{r}
+eng_status <- read_csv("data/mathematics/Mathematics, Age 9, Status as Engl.csv", show_col_types = FALSE)
+colnames(eng_status) <- eng_status[8, 1:4]
+eng_status <- eng_status[9:18, 1:4] |>
+  mutate(Year = ymd(Year, truncated = 2L))
+
+ggplot(eng_status, aes(x = Year, y = `Average scale score`, colour = `Status as English learner, 2 categories`)) +
+  geom_point() +
+  geom_line(aes(group = `Status as English learner, 2 categories`)) +
+  scale_x_date(breaks = as.Date(paste0(seq(2004, 2024, 4), "-01-01")), date_labels = "%Y") +
+  theme_minimal() + 
+  theme(legend.position = "bottom")
+```
+Once again, there is missing data in 2016.
+
+### Reading Data
+
