@@ -26,7 +26,7 @@ book:
 
 format:
   html:
-    theme: morph
+    theme: cosmo
     code-fold: true
 
 

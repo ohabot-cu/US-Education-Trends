@@ -10,6 +10,7 @@ https://www.nationsreportcard.gov/ndecore/xplore/ltt
 
 ```{r}
 #| echo: false
+#| output: false
 
 library(tidyverse)
 library(lubridate)
@@ -148,9 +149,9 @@ disability_r <- disability_r[-1, ]
 ```{r}
 disability_r$Year <- as.Date(paste0(disability_r$Year, "-01-01"))
 
-ggplot(disability_r, aes(x = Year, y = `Average scale score`, color = `Disability status of student, excluding those with 504 plan`)) +
+ggplot(disability_r, aes(x = Year, y = `Average scale score`, color = `Disability status of student, including those with 504 plan`)) +
   geom_point() +
-  geom_line(aes(group = `Disability status of student, excluding those with 504 plan`)) +
+  geom_line(aes(group = `Disability status of student, including those with 504 plan`)) +
   scale_x_date(breaks = as.Date(paste0(seq(2004, 2024, 4), "-01-01")), 
                date_labels = "%Y") +
   theme_minimal() + 
