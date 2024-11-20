@@ -2,4 +2,9 @@
 
 ## Description
 
+The data source we are using for this project is the National Assessment of Educational Progress (NAEP). The NAEP is a federal program under the US Department of Education that administers standardized tests typically every four years to test reading and mathematics skills of students across the country. The data we will use for this project is collected from the results of NAEP assessments administered from 1978 onwards. As the national assessment is typically administered every four years, the frequency of the data is every four years. The data can be downloaded in a .xls format from the NAEP website, and we will convert them to a .csv format. The data can be downloaded by all years from 1978-2022 and by any of the following variables: all students, region of the country, gender, disability status (including 504 plan), disability status (excluding 504 plan), status as an English learner, race/ethnicity, public or private school, public or nonpublic school, National School Lunch program eligibility, and school location. For this project, we will focus on the following demographic variables: region of the country, gender, disability status, status as an English learner, race/ethnicity, National School Lunch program eligibility, and school location. Because the data can only be downloaded by one variable at a time, we will have to import separate csv files for each of these datasets and then join them. We also know that data for all these demographics is not available for all years, so we anticipate narrowing the scope of our project in terms of time.
+
+https://www.nationsreportcard.gov/ndecore/xplore/ltt 
+
+
 ## Missing value analysis
