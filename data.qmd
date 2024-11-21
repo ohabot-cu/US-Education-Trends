@@ -14,6 +14,9 @@ https://www.nationsreportcard.gov/ndecore/xplore/ltt
 
 library(tidyverse)
 library(lubridate)
+library(dplyr)
+library(lubridate)
+
 ```
 
 
@@ -33,8 +36,30 @@ ggplot(disability, aes(x = Year, y = `Average scale score`, colour = `Disability
   theme_minimal() + 
   theme(legend.position = "bottom")
 ```
+```{r}
+#Missing values in the Mathematics Disability dataset
 
-The data appears to be collected roughly every four years. However, data in 2016 is missing for the disability category here, as well as in most of the other categories.
+disability <- read_csv("data/mathematics/Mathematics, Age 9, Disability sta.csv")
+
+colnames(disability) <- disability[8, 1:4]
+disability <- disability[9:36, 1:4] |>
+  mutate(Year = ymd(Year, truncated = 2L))  
+
+disability <- disability |>
+  mutate(across(where(is.character), ~na_if(., "‡"))) |>
+  mutate(across(where(is.character), ~na_if(., "—"))) 
+
+
+missing_values_disability <- sapply(disability, function(x) sum(is.na(x)))
+print(missing_values_disability)
+
+total_missing_disability <-sum(is.na(disability))
+print(paste("Total number of missing values in the disability dataset:", total_missing_disability))
+
+
+```
+
+The data appears to be collected roughly every four years. However, data in 2016 is missing for the disability category here, as well as in most of the other categories. The data begins being recorded in 2004. There are no records prior to that year either due to insufficient reporting standards or not being available. 
 
 #### Gender
 ```{r}
@@ -52,6 +77,7 @@ ggplot(gender, aes(x = Year, y = `Average scale score`, colour = Gender)) +
 ```
 There appears to be missing data in 2016 in the gender category as well. There is also a vertical segment in the `Male` timeseries which is due to a transition from an "original" exam to a new exam version. The vertical segment reflects recorded values for the two versions of the exam in the same year. The scores for `Female` students were equivalent in both versions, so there is no vertical segment in that particular line graph.
 
+Other than 2016, there is no missing data set throughout 1978-2022. The fact that data is available for over four decades suggests that gender data is likely a critical component of the dataset and historically it has been prioritized compared to other metrics.
 
 #### National School
 ```{r, fig.width=8}
@@ -68,7 +94,25 @@ ggplot(national_school, aes(x = Year, y = `Average scale score`, colour = `Natio
   theme(legend.position = "bottom")
 ```
 
-Again we see vertical segments due to the transition between exam versions, and we also see missing data in 2016.
+```{r}
+#Missing Values in Mathematics National School Dataset
+national_school <- read_csv("data/mathematics/Mathematics, Age 9, National School.csv", show_col_types = FALSE, name_repair = 'minimal')
+
+colnames(national_school) <- national_school[8, 1:4]
+national_school <- national_school[9:50, 1:4] |>
+  mutate(Year = ymd(Year, truncated = 2L))
+
+national_school <- national_school|>
+  mutate(across(where(is.character), ~na_if(., "—")))  
+
+missing_values_national_school <- sapply(national_school, function(x) sum(is.na(x)))
+print(missing_values_national_school)
+
+total_missing_national_school <- sum(is.na(national_school))
+print(paste("Total number of missing values in the national school dataset:", total_missing_national_school))
+
+```
+Again we see vertical segments due to the transition between exam versions, and we also see missing data in 2016. Once again, data prior to 2004 is unavailable in this dataset resulting in 24 missing values in the Average Scale Score column.
 
 #### Race Ethnicity
 ```{r, fig.height=7}
@@ -84,7 +128,25 @@ ggplot(race, aes(x = Year, y = `Average scale score`, colour = `Race/ethnicity (
   theme_minimal() + 
   theme(legend.position = "bottom")
 ```
-This graph also contains vertical line segments at year 2004, as well as missing data in 2016. Another interesting thing to note here is the special character, which signifies that the reporting standards were not met, at the bottom of the y-axis. This primarily affectts the Unclassified and American Indian or Alaska Native students.
+
+
+This graph also contains vertical line segments at year 2004, as well as missing data in 2016. Another interesting thing to note here is the special character, which signifies that the reporting standards were not met, at the bottom of the y-axis. This primarily affects the Unclassified and American Indian or Alaska Native students.
+
+```{r}
+#Missing Values for Mathematics Race Data 
+race <- race|>
+  mutate(across(where(is.character), ~na_if(.,"‡")))
+
+missing_values <- sapply(race, function(x) sum(is.na(x)))
+print(missing_values)
+total_missing <-sum(is.na(race))
+print(paste("Total number of missing values in the dataset:", total_missing))
+
+race <- race|>
+  mutate(Year = ymd(Year, truncated = 2L)) 
+
+```
+
 
 #### School Region
 ```{r}
@@ -93,18 +155,39 @@ colnames(region) <- region[8, 1:4]
 region <- region[9:37, 1:4] |>
   mutate(Year = ymd(Year, truncated = 2L))
 
-ggplot(region, aes(x = Year, y = `Average scale score`, colour = `Region of the country`)) +
+ggplot(region, aes(x = Year, y =`Average scale score`, colour = `Region of the country`)) +
   geom_point() +
   geom_line(aes(group = `Region of the country`)) +
   scale_x_date(breaks = as.Date(paste0(seq(2004, 2024, 4), "-01-01")), date_labels = "%Y") +
   theme_minimal() + 
   theme(legend.position = "bottom")
 ```
-Here we see the same missing data patterns as before: vertical segments at 2004, missing data in 2016, and reporting standards not mett for the `DoDEA International` region of the country.
+```{r}
+#Missing data for Mathematics Region Dataset
+region <- read_csv("data/mathematics/Mathematics, Age 9, Region of the.csv", show_col_types = FALSE, name_repair = 'minimal')
+colnames(region) <- region[8, 1:4]
+region <- region[9:78, 1:4] |>
+  mutate(Year = ymd(Year, truncated = 2L))
+
+region <- region |>
+  mutate(across(where(is.character), ~na_if(., "—"))) |>
+  mutate(across(where(is.character), ~na_if(., "‡")))
+
+missing_values_region <- sapply(region, function(x) sum(is.na(x)))
+print(missing_values_region)
+
+total_missing_region <- sum(is.na(region))
+print(paste("Total number of missing values in the region dataset:", total_missing_region))
+
+
+```
+
+Here we see the same missing data patterns as before: vertical segments at 2004, missing data in 2016, and reporting standards not met for the `DoDEA International` region of the country. We also have N/A score data for years prior to 2004. 
 
 
 #### School Location
 ```{r}
+
 location <- read_csv("data/mathematics/Mathematics, Age 9, School location.csv", show_col_types = FALSE, name_repair = 'minimal')
 colnames(location) <- location[8, 1:4]
 location <- location[9:24, 1:4] |>
@@ -113,11 +196,34 @@ location <- location[9:24, 1:4] |>
 ggplot(location, aes(x = Year, y = `Average scale score`, colour = `School location, 4 categories`)) +
   geom_point() +
   geom_line(aes(group = `School location, 4 categories`)) +
-  scale_x_date(breaks = as.Date(paste0(seq(2008, 2024, 4), "-01-01")), date_labels = "%Y") +
+  scale_x_date(breaks = as.Date(paste0(seq(2008, 2024, 4), "-01-01")), date_labels ="%Y") +
   theme_minimal() + 
   theme(legend.position = "bottom")
+
 ```
-In this category, the only notable observation is missing data in 2016.
+```{r}
+
+#Missing Values in Mathematics Location Dataset
+location <- read_csv("data/mathematics/Mathematics, Age 9, School location.csv", show_col_types = FALSE, name_repair = 'minimal')
+
+colnames(location) <- location[8, 1:4]
+location <- location[9:64, 1:4] |>
+  mutate(Year = ymd(Year, truncated = 2L))
+
+location <- location|>
+  mutate(across(where(is.character), ~na_if(., "—")))  
+
+missing_values_location <- sapply(location, function(x) sum(is.na(x)))
+print(missing_values_location)
+
+total_missing_location <- sum(is.na(location))
+print(paste("Total number of missing values in the location dataset:", total_missing_location))
+
+
+
+```
+In this category, the only notable observation is missing data in 2016. There are 40 missing score values, starting from 1978 to 2004. 
+
 
 #### Status as English Learner
 ```{r}
@@ -126,6 +232,7 @@ colnames(eng_status) <- eng_status[8, 1:4]
 eng_status <- eng_status[9:18, 1:4] |>
   mutate(Year = ymd(Year, truncated = 2L))
 
+
 ggplot(eng_status, aes(x = Year, y = `Average scale score`, colour = `Status as English learner, 2 categories`)) +
   geom_point() +
   geom_line(aes(group = `Status as English learner, 2 categories`)) +
@@ -133,8 +240,31 @@ ggplot(eng_status, aes(x = Year, y = `Average scale score`, colour = `Status as 
   theme_minimal() + 
   theme(legend.position = "bottom")
 ```
-Once again, there is missing data in 2016.
 
+```{r}
+#Missing data for Mathematics English Status Dataset
+
+eng_status <- read_csv("data/mathematics/Mathematics, Age 9, Status as Engl.csv", 
+                       show_col_types = FALSE, name_repair = 'minimal')
+
+colnames(eng_status) <- eng_status[8, 1:4]
+
+eng_status <- eng_status[9:32, 1:4] |>
+  mutate(Year = ymd(Year, truncated = 2L))
+
+eng_status <- eng_status |>
+  mutate(across(where(is.character), ~na_if(., "—"))) |>
+  mutate(across(where(is.character), ~na_if(., "‡")))
+
+missing_values_eng_status <- sapply(eng_status, function(x) sum(is.na(x)))
+print(missing_values_eng_status)
+
+total_missing_eng_status <- sum(is.na(eng_status))
+print(paste("Total number of missing values in the eng_status dataset:", total_missing_eng_status))
+
+
+```
+Once again, there is no data for 2016. Prior to 2004 there is no score data.
 
 
 
@@ -160,8 +290,32 @@ ggplot(disability_r, aes(x = Year, y = `Average scale score`, color = `Disabilit
   theme_minimal() + 
   theme(legend.position = "bottom")
 ```
+```{r}
+#Missing Values for the Readiing Disability Dataset
+disability_r <- read_csv("data/reading/NAEP_Disability.csv", show_col_types = FALSE, name_repair = 'minimal')
 
-Just like the mathematics data, data is missing for 2016 for the disability variable and for most other variables. Other than that, data is collected roughly every four years, with the exception of data in 2022 after 2020. We assume a national assessment was conducted in 2022 to evaluate student learning during the pandemic.
+disability_r<- disability_r[8:20,]
+colnames(disability_r)<- as.character(disability_r[1, ])
+disability_r <- disability_r[-1, ]
+
+disability_r <- disability_r |>
+  mutate(Year = ymd(Year, truncated = 2L))
+
+disability_r <- disability_r|>
+  mutate(across(where(is.character), ~na_if(., "—"))) |>
+  mutate(across(where(is.character), ~na_if(., "‡")))
+
+missing_values_disability_r <- sapply(disability_r, function(x) sum(is.na(x)))
+print(missing_values_disability_r)
+
+total_missing_disability_r <- sum(is.na(disability_r))
+print(paste("Total number of missing values in the disability_r dataset:", total_missing_disability_r))
+
+```
+
+Just like the mathematics data, data is missing for 2016 for the disability variable and for most other variables. Other than that, data is collected roughly every four years, with the exception of data in 2022 after 2020. We assume a national assessment was conducted in 2022 to evaluate student learning during the pandemic. 
+
+The 2004 data appears in two forms: one marked as valid and another flagged as 'Original assessment format.' The flagged data has missing scores (noted as '‡'), likely due to differences in assessment methodology during a transition year. This analysis includes only the standardized scores for 2004 and excludes flagged data to maintain consistency.
 
 #### Gender 
 ```{r}
@@ -183,6 +337,7 @@ ggplot(gender_r, aes(x = Year, y = `Average scale score`, color = `Gender`)) +
 ```
 
 Once again, there is data for every 4 years starting from 2004, with the exceptions of missing 2016 data and data in 2022, just two years after data was collected for 2020.
+The dataset does not include any flagged entries indicating that reporting standards were met for all listed years.
 
 #### National School Lunch Program
 ```{r}
@@ -202,8 +357,29 @@ ggplot(lunch_program_r, aes(x = Year, y = `Average scale score`, color = `Nation
   theme_minimal() + 
   theme(legend.position = "bottom")
 ```
+```{r}
+#Missing values in Reading Lunch Program Dataset
+lunch_program_r <- read_csv("data/reading/NAEP_LunchProgram.csv", show_col_types = FALSE, name_repair = 'minimal')
+lunch_program_r <- lunch_program_r[8:56, ]
+colnames(lunch_program_r) <- as.character(lunch_program_r[1, ])
+lunch_program_r <- lunch_program_r[-1, ] |>
+  mutate(Year = ymd(Year, truncated = 2L))
+
+lunch_program_r <- lunch_program_r |>
+  mutate(across(where(is.character), ~na_if(., "—"))) |>
+  mutate(across(where(is.character), ~na_if(., "‡")))
+
+missing_values_lunch_program_r <- sapply(lunch_program_r, function(x) sum(is.na(x)))
+print(missing_values_lunch_program_r)
+
+total_missing_lunch_program_r <- sum(is.na(lunch_program_r))
+print(paste("Total number of missing values in the lunch program dataset:", total_missing_lunch_program_r))
+
+```
 
 Again, starting every 4 years from 2004, data is only missing for 2016.
+
+This data includes 30 flagged entries (-) from 1971-1999, indicating that information is not available. These were excluded from the analysis.
 
 #### Race Ethnicity 
 ```{r}
@@ -223,8 +399,30 @@ ggplot(race_r, aes(x = Year, y = `Average scale score`, color = `Race/ethnicity 
   theme_minimal() + 
   theme(legend.position = "bottom")
 ```
+```{r}
+#Missing values for the Reading Race Dataset
+race_r <- read_csv("data/reading/NAEP_Race.csv", show_col_types = FALSE, name_repair = 'minimal')
+race_r <- race_r[8:92, ]
+colnames(race_r) <- as.character(race_r[1, ])
+race_r <- race_r[-1, ] |>
+  mutate(Year = ymd(Year, truncated = 2L))
 
-Similar to the graph for mathematics data for race, the special characters indicating missing values appear at the bottom of the y axis. Data is missing again 2016.
+race_r <- race_r |>
+  mutate(across(where(is.character), ~na_if(., "—"))) |>
+  mutate(across(where(is.character), ~na_if(., "‡")))
+
+missing_values_race_r <- sapply(race_r, function(x) sum(is.na(x)))
+print(missing_values_race_r)
+
+total_missing_race_r <- sum(is.na(race_r))
+print(paste("Total number of missing values in the race dataset:", total_missing_race_r))
+
+
+
+```
+
+Similar to the graph for mathematics data for race, the special characters indicating missing values appear at the bottom of the y axis. Data is missing again 2016. 
+There are 15 missing score entries in this dataset, mainly (‡) values. These are most commonly seen for "American Indian or Alaska Native" and "Unclassified" categories, likely due to insufficient sample sizes.
 
 #### School Region
 ```{r}
@@ -236,16 +434,30 @@ region_r <- region_r[-1, ] |>
 ```
 
 ```{r}
-ggplot(region_r, aes(x = Year, y = `Average scale score`, color = `Region of the country`)) +
-  geom_point() +
-  geom_line(aes(group = `Region of the country`)) +
-  scale_x_date(breaks = as.Date(paste0(seq(2004, 2024, 4), "-01-01")), 
-               date_labels = "%Y") +
-  theme_minimal() + 
-  theme(legend.position = "bottom")
+#Missing values for the Reading Region Dataset
+region_r <-read_csv("data/reading/NAEP_Region.csv", show_col_types = FALSE, name_repair = 'minimal')
+region_r <- region_r[8:88, ]
+colnames(region_r) <- as.character(region_r[1, ])
+region_r<- region_r[-1, ] |>
+  mutate(Year = ymd(Year, truncated = 2L))
+
+region_r <- region_r |>
+  mutate(across(where(is.character), ~na_if(., "—"))) |>
+  mutate(across(where(is.character), ~na_if(., "‡")))
+
+missing_values_region_r <- sapply(region_r, function(x) sum(is.na(x)))
+print(missing_values_region_r)
+
+total_missing_region_r <- sum(is.na(region_r))
+print(paste("Total number of missing values in the region dataset:", total_missing_region_r))
+
+
+
 ```
 
 Interestingly here, the 'DoDEA International' category has fully missing data, as we can see from the special character on the y axis mapping to that category for every year. As this is also the case for the mathematics data, including this cateogory will probably not be helpful in our analysis. Data for 2016 is missing again.
+
+The dataset contains two types of missing values for the Average scale score column: the special characters "—" and "‡". Both represent missing data and are not included in the analysis.
 
 #### School Location 
 ```{r}
@@ -265,9 +477,29 @@ ggplot(location_r, aes(x = Year, y = `Average scale score`, color = `School loca
   theme_minimal() + 
   theme(legend.position = "bottom")
 ```
+```{r}
+#Missing values in Reading Location dataset
+location_r <- read_csv("data/reading/NAEP_Location.csv", show_col_types = FALSE, name_repair = 'minimal')
+
+location_r<- location_r[8:72, ]
+colnames(location_r) <- as.character(location_r[1, ])
+location_r <- location_r[-1, ] |>
+  mutate(Year = ymd(Year, truncated = 2L))
+
+location_r<- location_r |>
+  mutate(across(where(is.character), ~na_if(., "—"))) |>
+  mutate(across(where(is.character), ~na_if(., "‡")))
+
+missing_values_location_r <- sapply(location_r, function(x) sum(is.na(x)))
+print(missing_values_location_r)
+
+total_missing_location_r <- sum(is.na(location_r))
+print(paste("Total number of missing values in the location dataset:", total_missing_location_r))
+
+```
 
 Unlike some previous variables, data for this variable is missing for 2004 as well as 2016. 
-
+There are 48 missing values in the Average scale score column starting for earlier years including 1971-2004.
 #### Status as English Learner
 ```{r}
 english_status_r <- read_csv("data/reading/NAEP_EnglishStatus.csv", show_col_types = FALSE, name_repair = 'minimal')
@@ -286,5 +518,30 @@ ggplot(english_status_r, aes(x = Year, y = `Average scale score`, color = `Statu
   theme_minimal() + 
   theme(legend.position = "bottom")
 ```
+```{r}
+#Missing data in Reading english status dataset
+english_status_r <- read_csv("data/reading/NAEP_EnglishStatus.csv", show_col_types = FALSE, name_repair = 'minimal')
+english_status_r <- english_status_r[8:40, ]
+colnames(english_status_r) <- as.character(english_status_r[1, ])
+english_status_r <- english_status_r[-1, ] |>
+  mutate(Year = ymd(Year, truncated = 2L))
 
-Data is missing only for 2016.
+english_status_r <- english_status_r|>
+  mutate(across(where(is.character),~na_if(., "—"))) |>
+  mutate(across(where(is.character), ~na_if(., "‡")))
+
+missing_values_english_status_r <- sapply(english_status_r, function(x) sum(is.na(x)))
+print(missing_values_english_status_r)
+
+total_missing_english_status_r <- sum(is.na(english_status_r))
+print(paste("Total number of missing values in the English Status dataset:", total_missing_english_status_r))
+
+
+
+```
+
+Data is missing only for 2016. A total of 22 missing average scale score values exist in the dataset, and these gaps mostly correspond to earlier years where data might not have been reported or was unavailable. 
+
+Overall, the data availability across these datasets is generally strong, with most datasets exhibiting consistent reporting over multiple years. Missing values are typically encountered in earlier years suggesting that data collection methods or reporting standards may not have been as consistent in those periods.
+
+Some datasets, like the gender or region datasets, show almost complete data coverage, while others (e.g., the 2016 year in some datasets) have isolated instances of missing values. In general, the data is reliable for trend analysis, though attention must be given to specific years or categories with missing values to ensure proper handling in analyses.
