@@ -11,7 +11,7 @@ book:
     - Omri Habot (oh2263)
     - Vishwa Bhatt (vmb2146)
     - Anna Micros (am6529)
-  repo-url: https://ohabot-cu.github.io/US-Education-Trends/
+  repo-url: https://github.com/ohabot-cu/US-Education-Trends
   date: today
   page-footer:
     right: |
