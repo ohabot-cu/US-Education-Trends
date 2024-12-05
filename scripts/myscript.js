@@ -3,12 +3,7 @@
 /*
 Need to add the following features:
 
-- Legend to graph
 - Text displaying the scores of each region
-- Checkbox changing the data to display (math vs reading)
-- Title specifying graph contents
-- Make page look prettier
-- Add scale to the slider
 
 */
 
@@ -55,6 +50,11 @@ const path = d3.geoPath()
     .projection(projection);
     
 const plot = d3.select("div#plot")
+
+const title = plot.append("h3")
+                  .style("padding-left", "40px")
+                  .text(`Regional Std. Mathematics Scores (Age 9; Year 2004)`)
+                  
 
 // Create an SVG element
 const svg = plot
@@ -109,6 +109,7 @@ let year = "2004-01-01"
 // Load the GeoJSON data and display it
 d3.json("http://localhost:8003/data/us-states.geojson").then(geojson => {
     svg.append("g")
+        .attr("id", "state-polygons")
         .selectAll("path")
         .data(geojson.features)
         .enter()
@@ -152,10 +153,16 @@ d3.json("http://localhost:8003/data/us-states.geojson").then(geojson => {
         .attr("stroke", "white");
 });
 
+const slider_width = 240
+
 const year_select = plot.append("div")
                       .attr("class", "slider")
-                      .attr("display", "grid")
-                      .style("justify-self", "center");
+                      .style("display", "grid")
+                      .style("justify-content", "center")
+                      .style("justify-items", "center");
+const slider_lab = year_select.append("label")
+                      .attr("for", "year_slider")
+                      .text("Year: 2004");
 const slider = year_select.append("input")
                   .attr("type", "range")
                   .attr("value", 0)
@@ -163,17 +170,33 @@ const slider = year_select.append("input")
                   .attr("max", 4)
                   .attr("id", "year_slider")
                   .attr("name", "year_slider")
-                  .attr("width", "200px")
-const slider_lab = year_select.append("label")
-                      .attr("for", "year_slider")
-                      .text("Year: 2004");
+                  .attr("oninput", "this.nextElementSibling.value = this.value")
+                  .style("width", `${slider_width}px`)
+const curr_year = year_select.append("output")
+                            .style("font-size", "0")
+                              
+const slider_scale = d3.scaleBand()
+                        .domain([2004, 2008, 2012, 2020, 2022])
+                        .range([0, slider_width-20])
+                        .paddingOuter(0)
+                        .paddingInner(1)
+const slider_axis = d3.axisBottom().scale(slider_scale);
+year_select.append("svg")
+          .attr("id", "slider-axis")
+          .style("width", `${slider_width+2}px`)
+          .style("height", "20px")
+          .append("g")
+          .style("transform", "translate(10px, 0px)")
+          .call(slider_axis)
 
 slider.on("input", function(event) {
   // Get the value of the slider
   const num_year = allowedYears[event.target.value]
   const year = num_year + "-01-01"; // Format as 'YYYY-01-01'
+  
+  title.text(`Regional Std. Mathematics Scores (Age 9; Year ${num_year})`)
 
-  svg.selectAll("path")
+  svg.select("g#state-polygons").selectAll("path")
       .transition() // Optional: add smooth transition when changing colors
       .duration(1000)
       .attr("fill", d => {
@@ -187,4 +210,51 @@ slider.on("input", function(event) {
     
   slider_lab.text(`Year: ${num_year}`);
 });
+
+
+// Create Legend
+var defs = svg.append("defs")
+
+var legend = defs.append("linearGradient")
+                .attr("id", "linear-gradient")
+                .attr("x1", "0%")
+                .attr("x2", "0%")
+                .attr("y1", "100%")
+                .attr("y2", "0%")
+                
+legend.selectAll("stop")
+    .data([
+        {offset: "0%", color: "darkred"},
+        {offset: "50%", color: "#DDDDDD"},
+        {offset: "100%", color: "darkblue"}
+      ])
+    .enter().append("stop")
+    .attr("offset", function(d) { return d.offset; })
+    .attr("stop-color", function(d) { return d.color; });
+
+var legend_group = svg.append("g")
+                      .style("transform", "translate(10px, 35px)")
+                      
+legend_group.append("rect")
+    .attr("width", 20)
+    .attr("height", 200)
+    .style("fill", "url(#linear-gradient)");
+
+var legend_scale = d3.scaleLinear()
+                      .domain([250, 231])
+                      .range([0, 200]);
+var legend_axis = d3.axisRight().scale(legend_scale);
+
+legend_group.append("g")
+            .attr("id", "legend-axis")
+            .style("transform", "translate(20px, 0px)")
+            .call(legend_axis);
+                
+                
+function moveSlider() {
+  const curr_val = curr_year.value
+  
+  console.log()
+}
+setInterval(moveSlider, 1000)
 
