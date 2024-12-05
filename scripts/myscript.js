@@ -75,7 +75,7 @@ const all_scores = [];
 var colorScale;
 const allowedYears = [2004, 2008, 2012, 2020, 2022];
 
-d3.csv("http://localhost:8003/data/mathematics/modified_region.csv").then(region_scores => {
+d3.csv("https://raw.githubusercontent.com/ohabot-cu/US-Education-Trends/refs/heads/omri-d3-graph/data/mathematics/modified_region.csv").then(region_scores => {
     region_scores.forEach(row => {
         var year = row["Year"];
         var region = row["Region of the country"];
@@ -114,7 +114,7 @@ const tooltip = d3.select("body")
 let year = "2004-01-01"
 
 // Load the GeoJSON data and display it
-d3.json("http://localhost:8003/data/us-states.geojson").then(geojson => {
+d3.json("https://raw.githubusercontent.com/ohabot-cu/US-Education-Trends/refs/heads/omri-d3-graph/data/us-states.geojson").then(geojson => {
     svg.append("g")
         .attr("id", "state-polygons")
         .selectAll("path")
