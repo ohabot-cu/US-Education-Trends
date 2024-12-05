@@ -37,7 +37,7 @@ state_groups = {
 
 
 // Set up the dimensions of the SVG
-const width = 960;
+const width = 890;
 const height = 600;
 
 // Create a projection to convert geo-coordinates to screen coordinates
@@ -50,6 +50,8 @@ const path = d3.geoPath()
     .projection(projection);
     
 const plot = d3.select("div#plot")
+
+plot.style("display", "grid").style("margin-bottom", "50px")
 
 const title = plot.append("h3")
                   .style("padding-left", "40px")
@@ -65,14 +67,14 @@ const svg = plot
 // Define region scores and color scale
 const region_score_map = {};
 const all_scores = [];
-let colorScale;
+var colorScale;
 const allowedYears = [2004, 2008, 2012, 2020, 2022];
 
 d3.csv("http://localhost:8003/data/mathematics/modified_region.csv").then(region_scores => {
     region_scores.forEach(row => {
-        let year = row["Year"];
-        let region = row["Region of the country"];
-        let score = parseInt(row["Average scale score"]);
+        var year = row["Year"];
+        var region = row["Region of the country"];
+        var score = parseInt(row["Average scale score"]);
         
         if (!isNaN(score)) {
             all_scores.push(score);
@@ -233,7 +235,11 @@ legend.selectAll("stop")
     .attr("stop-color", function(d) { return d.color; });
 
 var legend_group = svg.append("g")
-                      .style("transform", "translate(10px, 35px)")
+                      .style("transform", "translate(10px, 40px)")
+                      
+legend_group.append("text")
+            .text("Std. Score")
+            .style("transform", "translate(0px, -12px)")
                       
 legend_group.append("rect")
     .attr("width", 20)
