@@ -14,7 +14,7 @@
     <span>Observations</span>
   </h2>
   <p>
-  From 2004 to 2012, the standardized mathematics scores of 9-year-olds in the West, Midwest, and South regions of the United States fluctuated around 240, and the Northeast stayed consistently higher with scores between 245 and 250. Scores increased in every region throughout these years. However, between 2020 and 2022, standardized mathematics scores decreased dramatically in all four regions. The scores in 2022 are roughly 10 points lower than the scores recorded in 2004 for each region.
+  From 2004 to 2012, the standardized mathematics scores of 9-year-olds in the West, Midwest, and South regions of the United States fluctuated around 240, and the Northeast stayed consistently higher with scores between 245 and 250. Scores increased in every region throughout these years. However, between 2020 and 2022, standardized mathematics scores decreased dramatically in all four regions. The scores in 2022 are roughly 10 points lower than the scores recorded in 2004.
   </p>
 </section>
 
