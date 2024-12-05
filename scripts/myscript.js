@@ -64,6 +64,11 @@ const svg = plot
     .attr("width", width)
     .attr("height", height);
     
+plot.append("label")
+    .attr("class", "hint")
+    .style("font-size", "10px")
+    .text("Hint: Hover over a region to view its Std. Score")
+    
 // Define region scores and color scale
 const region_score_map = {};
 const all_scores = [];
