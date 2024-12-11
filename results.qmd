@@ -1,5 +1,217 @@
 # Results
 
+{r}
+library(tidyverse)
+library(lubridate)
+library(ggridges)
+
+#preprocessing
+
+disability <- read_csv("data/mathematics/Mathematics, Age 9, Disability sta.csv", show_col_types = FALSE, name_repair = 'minimal')
+colnames(disability) <- disability[8, 1:4]
+disability <- disability[9:18, 1:4] |>
+  mutate(
+    Year = ymd(Year, truncated = 2L),
+    `Average scale score` = as.numeric(na_if(na_if(`Average scale score`, "‡"), "—")),
+    Subcategory = `Disability status of student, including those with 504 plan`,
+    Category = "Disability"
+  ) |>
+  drop_na(`Average scale score`, Year)
+
+gender <- read_csv("data/mathematics/Mathematics, Age 9, Gender.csv", show_col_types = FALSE, name_repair = 'minimal')
+colnames(gender) <- gender[8, 1:4]
+gender <- gender[9:36, 1:4] |>
+  mutate(
+    Year = ymd(Year, truncated = 2L),
+    `Average scale score` = as.numeric(na_if(na_if(`Average scale score`, "‡"), "—")),
+    Subcategory = Gender,
+    Category = "Gender"
+  ) |>
+  drop_na(`Average scale score`, Year)
+
+national_school <- read_csv("data/mathematics/Mathematics, Age 9, National School.csv", show_col_types = FALSE, name_repair = 'minimal')
+colnames(national_school) <- national_school[8, 1:4]
+national_school <- national_school[9:26, 1:4] |>
+  mutate(
+    Year = ymd(Year, truncated = 2L),
+    `Average scale score` = as.numeric(na_if(na_if(`Average scale score`, "‡"), "—")),
+    Subcategory = `National School Lunch Program eligibility, 3 categories`,
+    Category = "National School Lunch"
+  ) |>
+  drop_na(`Average scale score`, Year)
+
+race <- read_csv("data/mathematics/Mathematics, Age 9, Race ethnicity.csv", show_col_types = FALSE, name_repair = 'minimal')
+colnames(race) <- race[8, 1:4]
+race <- race[9:92, 1:4] |>
+  mutate(
+    Year = ymd(Year, truncated = 2L),
+    `Average scale score` = as.numeric(na_if(na_if(`Average scale score`, "‡"), "—")),
+    Subcategory = `Race/ethnicity (6 categories)`,
+    Category = "Race/Ethnicity"
+  ) |>
+  drop_na(`Average scale score`, Year)
+
+region <- read_csv("data/mathematics/Mathematics, Age 9, Region of the.csv", show_col_types = FALSE, name_repair = 'minimal')
+colnames(region) <- region[8, 1:4]
+region <- region[9:37, 1:4] |>
+  mutate(
+    Year = ymd(Year, truncated = 2L),
+    `Average scale score` = as.numeric(na_if(na_if(`Average scale score`, "‡"), "—")),
+    Subcategory = `Region of the country`,
+    Category = "Region"
+  ) |>
+  drop_na(`Average scale score`, Year)
+
+location <- read_csv("data/mathematics/Mathematics, Age 9, School location.csv", show_col_types = FALSE, name_repair = 'minimal')
+colnames(location) <- location[8, 1:4]
+location <- location[9:24, 1:4] |>
+  mutate(
+    Year = ymd(Year, truncated = 2L),
+    `Average scale score` = as.numeric(na_if(na_if(`Average scale score`, "‡"), "—")),
+    Subcategory = `School location, 4 categories`,
+    Category = "School Location"
+  ) |>
+  drop_na(`Average scale score`, Year)
+
+eng_status <-read_csv("data/mathematics/Mathematics, Age 9, Status as Engl.csv", show_col_types = FALSE, name_repair = 'minimal')
+colnames(eng_status) <- eng_status[8, 1:4]
+eng_status <- eng_status[9:18, 1:4] |>
+  mutate(
+    Year = ymd(Year, truncated = 2L),
+    `Average scale score` = as.numeric(na_if(na_if(`Average scale score`, "‡"), "—")),
+    Subcategory = `Status as English learner, 2 categories`,
+    Category = "English Learner Status"
+  ) |>
+  drop_na(`Average scale score`, Year)
+
+all_students <- read_csv("data/mathematics/Mathematics, Age 9, All students.csv", show_col_types = FALSE, name_repair = 'minimal')
+colnames(all_students) <- all_students[8, 1:4]
+all_students <- all_students[9:24, 1:4] |>
+  mutate(
+    Year = ymd(Year, truncated = 2L),
+    `Average scale score` = as.numeric(na_if(na_if(`Average scale score`, "‡"), "—")),
+    Subcategory = `All students`,
+    Category = "All Students"
+  ) |>
+  drop_na(`Average scale score`, Year)
+
+
+{r}
+ggplot(all_students, aes(x = Year, y = `Average scale score`)) +
+  geom_point(size = 3) +
+  geom_line(group = 1, size = 1) +
+  labs(
+    title = "Mathematics Scores for All Students Over Time",
+    x = "Year",
+    y = "Average Scale Score"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 15, hjust = 0.5, face = "bold"),
+    axis.text.x = element_text(size = 11, angle = 45, hjust = 1),
+    axis.text.y = element_text(size = 11)
+  )
+
+
+This graph provides a clear visualization of the trend of Mathematics scores for all students aged 9. It shows a significant improvement in scores from 1980 through the early 2000s, with scores peaking around 2012. Between 2008 and 2012, there is a plateau at the highest score, suggesting a possible threshold where further improvements in score are difficult to achieve.
+
+The drop in scores after 2012 raises questions about possible changes in factors such as resource allocation, changing education policies, or broader socioeconomic issues. The sharp drop between 2020 and 2022 is most likely related to the COVID-19 pandemic, which disrupted education globally and may have disproportionately impacted students. This two year period decline is consistent across all categories, emphasizing the disruption it caused to students' learning.
+
+Another possible influence to the score decline in recent years is policy;the introduction of Common Core standards starting in 2010, which reformed math and English curricula nationwide, may have influenced the trends observed. These curriculum changes could have contributed to the shifts in performance during the period. Studies have shown that the change in standards had no positive impact on student achievement and may have potentially worsened student understanding. 
+
+{r}
+key_categories <- combined_data |>
+  filter(Subcategory %in% c("White (not Hispanic)", "Black (not Hispanic)", "Hispanic", "All students"))
+
+ggplot(key_categories, aes(x = Year, y = `Average scale score`, group = Subcategory)) +
+  geom_line(aes(color = Subcategory, size = Subcategory == "All students"), size = 1.2) +
+  geom_point(aes(color = Subcategory, size = Subcategory == "All students"), shape = 21, stroke = 1) +
+  scale_color_manual(
+    values = c(
+      "All students" = "black",
+      "White (not Hispanic)" = "pink",  
+      "Black (not Hispanic)" = "red", 
+      "Hispanic" = "coral"   
+    )
+  ) +
+  scale_size_manual(
+    values = c("FALSE" = 0.8, "TRUE" = 1.5),
+    guide = "none"  # Hides the legend for size
+  ) +
+  labs(
+    title = "Trends in Average Scores for Selected Demographics",
+    x = "Year",
+    y = "Average Scale Score",
+    color = "Subcategory"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 15, hjust = 0.5, face = "bold"),
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+
+
+Adding racial subcategories into the graph gives us insight on some of the racial disparities in the educational system. Though the gap has narrowed, there is a consistent difference in test scores between White, Hispanic, and Black students. While gaps in reading test scores are experiencing reductions, mathematics has proven more resistant to change. This may be due to the subject specific challenges which might need more attention.
+
+{r}
+data_combined <- bind_rows(all_students, disability, gender, national_school, race, region, location, eng_status)
+
+data_combined <- data_combined |> mutate(Year = as.factor(year(Year)))
+ggplot(data_combined, aes(x = Subcategory, y = Year, fill = `Average scale score`)) +
+  geom_tile(color = "white", alpha = 0.8) +
+  scale_fill_gradient(low = "lightblue", high = "blue", na.value = "grey90") +
+  labs(
+    title = "Heatmap of Average Test Scores by Year and Subcategory",
+    x = "Subcategory",
+    y = "Year",
+    fill = "Avg Scale Score"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+    axis.text.y = element_text(size = 8),
+    legend.position = "right"
+  )
+
+
+
+The heat map clearly visualizes differences between all subcategories where data is available, with missing data represented as blank spaces. Warmer colors (red) highlight higher average scores, while cooler colors (blue) indicate lower scores. Some key observations include: 
+
+ 'Asian American or Pacific Islander' students consistently outperform other students, which might suggest better academic outcomes for this group. - Groups like "Black (not Hispanic)" and "Hispanic" appear to perform relatively lower, reflecting potential disparities. These differences in performance become less apparent in more recent years.
+
+ Students identified as having disabilities or those eligible for the National School Lunch Program show consistently lower scores, emphasizing the need for targeted support for these groups. Students eligible for School Lunches are part of lower income households, showing the educational setback that comes with lower socioeconomic status.
+
+This graph also highlights the availability of data throughout time. Certain demographics which were not prioritized in earlier years are missing data entirely. For instance, data for students with disabilities only begins in 2004, reflecting historical limitations in prioritizing certain demographics, or even identifying them alltogether. Missing data can also be attributed to the lack of data collection tools. The evolution of technology and centralized systems has significantly improved the ability to collect and share data across states, enabling a more detailed analysis today.
+
+{r}
+
+variableorder <- unique(combined_data$Subcategory)
+diff_plot_data <- combined_data |>
+  mutate(Year = year(Year)) |>
+  filter(Year %in% c(2020, 2022)) |>
+  pivot_wider(names_from = Year, values_from = `Average scale score`, names_prefix = "Year_") |>
+  mutate(Difference = Year_2022 - Year_2020) |>
+  filter(!is.na(Difference), !Subcategory %in% c("Unclassified", "Information not available"))
+#2020vs2022
+ggplot(diff_plot_data, aes(x = factor(Subcategory, levels = variableorder), y = Difference, fill = Difference)) +
+geom_col() + 
+
+scale_fill_gradient(low = "red", high = "pink") +
+  labs(
+    title = "Difference in Test Scores: 2022 vs 2020",
+    x = "Subcategory",
+    y = "Score Difference"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    plot.title = element_text(size = 15, hjust = 0.5, face = "bold")
+  )
+
+To further explore the impact of the pandemic, we examine the shift from 2020 to 2022 in test scores. Across all categories, there is a drop in test scores and this graph visualizes the value of this shift. There was a decline in test scores across all subcategories. Some were affected more than others, with Black, Hispanic, Disabled and Suburb categories being the most affected.
+
+The sharper decline in scores after 2020 across these groups shows how the disruptions caused by the pandemic likely hightened preexisting inequities. These students may have been affected disproportionately due to less access to resources for remote learning and lack of support systems.
+
 
 ```{r}
 library(tidyverse)
