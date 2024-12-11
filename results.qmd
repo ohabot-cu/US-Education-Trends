@@ -1,5 +1,16 @@
 # Results
 
+The following sections outline trends in standardized test scores of 9-year-old students in US public schools. The sources used to describe or explain these trends in the data can be found at the bottom of the page.
+
+```{r setup, include=FALSE}
+# Global setup code here
+knitr::opts_chunk$set(
+  warning = FALSE,  # Suppress warnings globally
+  message = FALSE,  # Suppress messages globally
+  echo = FALSE       # Show code by default
+)
+```
+
 ```{r}
 #| echo: false
 #| output: false
@@ -454,3 +465,15 @@ all_reading_data |>
 We use this final visualization of our reading analysis as a metric to ensure our previous analysis is correct in assuming that lower reading scores in the last few years is at least in part due to the COVID-19 pandemic. This graph displays long term trends in reading scores, first showing the change in scores from 2004 to 2012 ih the purple bar and then the change from 2012 to 2022 in the blue bar. We observe that almost every variable, again with the exception of American Indian/Alaska Native students, demonstrated increasing scores in reading from 2004 to 2012 and then a decrease fom 2012 to 2022. In many cases, the magnitude of this decrease was as great as the progress these groups of students had made in the previous 10 year period. This confirms that the drop in scores from 2020 to 2022 is not a continuation of a long term trend for some of these groups but a recent development. We have detailed one prominent explanation for this decrease, namely the COVID-19 pandemic. There are a number of other reasons which may have contributed to this decrease: the introduction of common core, as mentioned earlier, for one, or the introduction of online tools that students increasingly rely on such as autocorrect and grammar checkers that may inadvertently inhibit students' development of these skills. Nonetheless, we now have a more thorough understanding of where the gap in education in terms of key critical reading and comprehension skills is most apparent today.
 
 ## Sources
+
+[Harvard - Covid-19 Impact on Rural Schools](https://www.gse.harvard.edu/ideas/edcast/20/10/covid-19s-impact-rural-schools)
+
+[Learning Loss and Academic Recovery Show Growing Inequality](https://www.chalkbeat.org/2024/02/05/learning-loss-study-finds-surprising-academic-recovery-growing-inequality/#:~:text=Scores%20for%20students%20from%20less,make%20up%20for%20learning%20loss.)
+
+[The Socioeconomic Achievement Gap in US Public Schools](https://ballardbrief.byu.edu/issue-briefs/the-socioeconomic-achievement-gap-in-the-us-public-schools#:~:text=Poverty%20affects%20all%20aspects%20of,and%20perform%20well%20in%20school.&text=Insufficient%20funding%2C%20lack%20of%20resources,income%20and%20higher%2Dincome%20students.)
+
+[Common Core Has Not Worked](https://www.educationnext.org/common-core-has-not-worked-forum-decade-on-has-common-core-failed/)
+
+[The Black-White Test Score Gap](https://www.brookings.edu/articles/the-black-white-test-score-gap-why-it-persists-and-what-can-be-done/)
+
+[Reading and Math Score Trends](https://nces.ed.gov/programs/coe/indicator/cnj/reading-math-score-trends)

@@ -208,7 +208,7 @@ slider.on("input", function(event) {
       .duration(1000)
       .attr("fill", d => {
         const state = d.properties.name;
-        for (const [region, states] of Object.entries(state_groups)) {
+        for (let [region, states] of Object.entries(state_groups)) {
               if (states.includes(d.properties.name)) {
                   return colorScale(region_score_map[year][region]); // Use the score to determine color
               }
