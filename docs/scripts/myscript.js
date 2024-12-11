@@ -73,6 +73,7 @@ plot.append("label")
 const region_score_map = {};
 const all_scores = [];
 var colorScale;
+const colors = ["#dbeeff", "#004f90"];
 const allowedYears = [2004, 2008, 2012, 2020, 2022];
 
 d3.csv("https://raw.githubusercontent.com/ohabot-cu/US-Education-Trends/refs/heads/omri-d3-graph/data/mathematics/modified_region.csv").then(region_scores => {
@@ -94,9 +95,9 @@ d3.csv("https://raw.githubusercontent.com/ohabot-cu/US-Education-Trends/refs/hea
     const min = d3.min(all_scores)
     const max = d3.max(all_scores)
     const avg = (min + max) / 2
-    colorScale = d3.scaleDiverging()
-        .domain([min, avg, max])  // Centered at 0
-        .range(["darkred", "#DDDDDD", "darkblue"]);
+    colorScale = d3.scaleSequential()
+        .domain([min, max])  // Centered at 0
+        .range(colors);
 }).catch(error => {
     console.error("Error loading the CSV file:", error);
 });
@@ -231,9 +232,8 @@ var legend = defs.append("linearGradient")
                 
 legend.selectAll("stop")
     .data([
-        {offset: "0%", color: "darkred"},
-        {offset: "50%", color: "#DDDDDD"},
-        {offset: "100%", color: "darkblue"}
+        {offset: "0%", color: colors[0]},
+        {offset: "100%", color: colors[1]},
       ])
     .enter().append("stop")
     .attr("offset", function(d) { return d.offset; })
