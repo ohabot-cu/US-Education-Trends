@@ -187,13 +187,13 @@ ggplot(key_categories, aes(x = Year, y = `Average scale score`, group = Subcateg
 
 Adding racial subcategories into the graph gives us insight on some of the racial disparities in the educational system. Though the gap has narrowed, there is a consistent difference in test scores between White, Hispanic, and Black students. While gaps in reading test scores are experiencing reductions, mathematics has proven more resistant to change. This may be due to the subject specific challenges which might need more attention.
 
-```{r}
+```{r, fig.width = 12, fig.height = 6}
 data_combined <- bind_rows(all_students, disability, gender, national_school, race, region, location, eng_status)
 
-data_combined <- data_combined |> mutate(Year = as.factor(year(Year)))
+data_combined <- data_combined |> mutate(Year = as.factor(year(Year)), Avg_Score = `Average scale score`)
 ggplot(data_combined, aes(x = Subcategory, y = Year, fill = `Average scale score`)) +
   geom_tile(color = "white", alpha = 0.8) +
-  scale_fill_gradient(low = "lightblue", high = "blue", na.value = "grey90") +
+  scale_fill_gradient(low = "white", high = "darkblue", na.value = "grey90") +
   labs(
     title = "Heatmap of Average Test Scores by Year and Subcategory",
     x = "Subcategory",
@@ -369,7 +369,7 @@ Here we can develop a more thorough understanding of the distribution of reading
 
 A few trends are immediately noticeable: throughout the years, students who are classified as "English learners" have higher average scores than students are not classified as English learners. As US schools teach reading and writing in English, we can understand why students for whom English is not their first language would struggle more in this subject, and how online learning would only put them at a greater disadvantage of catching up to their peers. In a similar vein, students who are not eligible for the National School Lunch program based on their family's economic status have higher average scores than students who are eligible for the program. These students may face additional barriers that negatively affect their education: they may be facing food and/or housing insecurity, lack of internet connectivity, or difficultly accessing educational resources, among others; all these barriers would have been heightened by the pandemic. Students in the northwest region of the country also tend to score higher than the rest of the country, and were 5 point higher in 2022 than all other regions. Additionally, there are significant gaps in average reading scores by race from 1980 onwards, which again may be due to institutional barriers faced by certain groups, and again these institutional disadvantages may have been heightened in the wake of the pandemic.
 
-Thus, we have now identified groups of students that have historically faced barriers to s successful education and appear most at risk of falling behind in critical reading and comprehension skills. We can now examine which groups were actually most disadvantaged by the shift away from traditional education methods in the last few years.
+Thus, we have now identified groups of students that have historically faced barriers to a successful education and appear most at risk of falling behind in critical reading and comprehension skills. We can now examine which groups were actually most disadvantaged by the shift away from traditional education methods in the last few years.
 
 ```{r, fig.width = 12, fig.height = 6}
 all_reading_data |>
