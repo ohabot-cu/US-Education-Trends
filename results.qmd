@@ -1,3 +1,5 @@
+# Results
+
 {r}
 library(tidyverse)
 library(lubridate)
@@ -210,3 +212,224 @@ To further explore the impact of the pandemic, we examine the shift from 2020 to
 
 The sharper decline in scores after 2020 across these groups shows how the disruptions caused by the pandemic likely hightened preexisting inequities. These students may have been affected disproportionately due to less access to resources for remote learning and lack of support systems.
 
+
+```{r}
+library(tidyverse)
+library(ggthemes)
+```
+
+```{r}
+all_students <- read_csv("data/reading/NAEP_All.csv")
+disability <- read_csv("data/reading/NAEP_Disability.csv")
+english_status <- read_csv("data/reading/NAEP_EnglishStatus.csv")
+gender <- read_csv("data/reading/NAEP_Gender.csv")
+location <- read_csv("data/reading/NAEP_Location.csv")
+lunch_program <- read_csv("data/reading/NAEP_LunchProgram.csv")
+race <- read_csv("data/reading/NAEP_Race.csv")
+region <- read_csv("data/reading/NAEP_Region.csv")
+```
+
+```{r}
+all_students <- all_students[8:24, ]
+disability <- disability[8:40, ]
+english_status <- english_status[8:40, ]
+gender <- gender[8:40, ]
+location <- location[8:72, ]
+lunch_program <- lunch_program[8:56, ]
+race <- race[8:104, ]
+region <- region[8:88, ]
+```
+
+```{r}
+colnames(all_students) <- as.character(all_students[1, ])
+all_students <- all_students[-1, ]
+
+colnames(disability) <- as.character(disability[1, ])
+disability <- disability[-1, ]
+
+colnames(english_status) <- as.character(english_status[1, ])
+english_status <- english_status[-1, ]
+
+colnames(gender) <- as.character(gender[1, ])
+gender <- gender[-1, ]
+
+colnames(location) <- as.character(location[1, ])
+location <- location[-1, ]
+
+colnames(lunch_program) <- as.character(lunch_program[1, ])
+lunch_program <- lunch_program[-1, ]
+
+colnames(race) <- as.character(race[1, ])
+race <- race[-1, ]
+
+colnames(region) <- as.character(region[1, ])
+region <- region[-1, ]
+```
+
+```{r}
+pivot_wider(english_status, names_from="Status as English learner, 2 categories", values_from="Average scale score") -> english_wider
+
+pivot_wider(gender, names_from="Gender", values_from="Average scale score") -> gender_wider
+
+pivot_wider(location, names_from="School location, 4 categories", values_from="Average scale score") -> location_wider
+
+pivot_wider(lunch_program, names_from="National School Lunch Program eligibility, 3 categories", values_from="Average scale score") -> lunch_wider
+
+pivot_wider(region, names_from="Region of the country", values_from="Average scale score") -> region_wider
+
+pivot_wider(race, names_from="Race/ethnicity (6 categories)", values_from="Average scale score") -> race_wider
+
+pivot_wider(all_students, names_from="All students", values_from="Average scale score") -> all_wider
+```
+
+```{r}
+english_wider |>
+  left_join(gender_wider, by = c("Year", "Jurisdiction")) |>
+  left_join(location_wider, by = c("Year", "Jurisdiction")) |>
+  left_join(lunch_wider, by = c("Year", "Jurisdiction")) |>
+  left_join(region_wider, by = c("Year", "Jurisdiction")) |>
+  left_join(race_wider, by = c("Year", "Jurisdiction")) |>
+  left_join(all_wider, by = c("Year", "Jurisdiction")) -> all_reading_data
+```
+
+```{r}
+all_reading_data$Year <- gsub("[^0-9]", "", all_reading_data$Year)
+all_reading_data <- all_reading_data[-6, ]
+all_reading_data$Year <- as.Date(paste0(all_reading_data$Year, "-01-01"))
+```
+
+```{r}
+ggplot(all_reading_data, aes(x=Year, y=`All students`, group=1)) +
+  geom_point(color="purple") +
+  geom_line(color="purple") +
+  theme_minimal() + 
+  labs(title = "Reading Scores by Year (across all students)", x = "Year", y = "Reading Score") +
+  theme_minimal() +
+  theme(panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank()) +
+  theme(plot.title=element_text(face="bold")) +
+  theme(axis.text = element_text(face="bold"))
+```
+
+A basic line graph of reading scores for all students over the full time period 1971-2022 will provide us with a high level overview to begin our analysis. We can observe that reading scores generally have gradually increased over this period. Starting in 1971, the average reading scores across all students was 208, and has since climbed to 221 in 2012. This trend in increasing scores has two noticeable exceptions: a 3 point decrease in scores in 1990 from the previous testing year and a 6 point decrease in scores between 2012 and 2022, given scores collected in 2012, 2020, and 2022. Because we are interested in recent education trends and particularly the impact of COVID-19 from 2020 onwards in the quality of US education, we will focus our project in better exploring the decreasing trend of scores in the latter period. We also note that it is possible, given this data, that students' reading scores have actually be dropping since 2012, and one explanation of this may be the heavily criticized introduction of the common core in 2010 and its long terms impacts; however, without data from 2016 to confirm this, we cannot make further conclusions on this intuition. This graph does, however, gives us evidence to believe that COVID-19 did indeed impact literacy skills among students, so we will continue our analysis under this assumption. Given that we have data on scores not just for all students but across various racial, geographic, and socioeconomic demographics, we can use this observation as a jumping off point for understanding which groups of students across the country have been most impacted in their developing of key critical reading comprehension skills because of unique barriers they faced as a result of the COVID-19 pandemic.
+
+```{r, fig.width = 12, fig.height = 6}
+variableorder <- c("All students", "Male", "Female", "White (not Hispanic)", "Black (not Hispanic)", "Hispanic", "Asian American or Pacific Islander", "American Indian or Alaska Native", "Northeast", "Midwest", "South", "West", "City", "Town", "Suburb", "Rural", "Eligible", "Not eligible", "EL", "Not EL")
+
+all_reading_data |>
+  pivot_longer(cols = -Year, names_to = "Variable", values_to = "Avg_Score") |>
+  mutate(across(-c("Year", "Variable"), as.numeric)) |>
+  drop_na(Avg_Score) |>
+  filter(Variable != "Unclassified") |>
+  filter(Variable != "Information not available") |>
+  ggplot(aes(x = Year, y = factor(Variable, levels = variableorder), fill = Avg_Score)) +
+  geom_tile() +
+  geom_text(aes(label = round(Avg_Score, 1)), color = "black", size = 3) + 
+  scale_fill_gradient(low = "white", high = "blue") + 
+  theme_minimal() +
+  labs(title = "Heatmap of Average Scores across all Years and Demographics",
+      x = "Variable",
+      y = "Year",
+      fill = "Average Score") +
+  theme(panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank()) +
+  theme(plot.title=element_text(face="bold")) +
+  theme(axis.text = element_text(face="bold"))
+```
+
+Here we can develop a more thorough understanding of the distribution of reading scores across all demographics recorded by the data source, the National Assessment of Educational Progress. This heatmap breaks down scores for each demographic over the full time period. From this we can make a number of observations: reading scores vary significantly across the different variables, though the overall trend of scores increasing from 1971 to 2012 remains consistent across the majority of them. This observation is constrained by the fact that many variables are only recorded from 2004 onwards, and we will have to limit the scope of the rest of our analysis.
+
+A few trends are immediately noticeable: throughout the years, students who are classified as "English learners" have higher average scores than students are not classified as English learners. As US schools teach reading and writing in English, we can understand why students for whom English is not their first language would struggle more in this subject, and how online learning would only put them at a greater disadvantage of catching up to their peers. In a similar vein, students who are not eligible for the National School Lunch program based on their family's economic status have higher average scores than students who are eligible for the program. These students may face additional barriers that negatively affect their education: they may be facing food and/or housing insecurity, lack of internet connectivity, or difficultly accessing educational resources, among others; all these barriers would have been heightened by the pandemic. Students in the northwest region of the country also tend to score higher than the rest of the country, and were 5 point higher in 2022 than all other regions. Additionally, there are significant gaps in average reading scores by race from 1980 onwards, which again may be due to institutional barriers faced by certain groups, and again these institutional disadvantages may have been heightened in the wake of the pandemic. 
+
+Thus, we have now identified groups of students that have historically faced barriers to s successful education and appear most at risk of falling behind in critical reading and comprehension skills. We can now examine which groups were actually most disadvantaged by the shift away from traditional education methods in the last few years. 
+
+```{r, fig.width = 12, fig.height = 6}
+all_reading_data |>
+  mutate(Year = as.numeric(Year),  
+         Year = factor(Year, levels = c(2020, 2022))) |>  
+  pivot_longer(cols = -Year, names_to = "Variable", values_to = "Avg_Score") |>  
+  mutate(across(-c("Year", "Variable"), as.numeric)) |>
+  drop_na(Avg_Score) |>
+  filter(Year == 2020 | Year == 2022) |>
+  filter(Variable != "Unclassified") |>
+  filter(Variable != "Information not available") |>
+  ggplot(aes(x = factor(Variable, levels = variableorder), y = Avg_Score, fill = Year, group = Year)) + 
+  geom_bar(stat = 'identity', position = 'dodge') + 
+  labs(title = "Reading Scores for 2020 and 2022 across all Demographics",
+       x = "Variable",
+       y = "Average Score",
+       fill = "Year") +  
+  scale_fill_manual(values = c("2020" = "darkorchid1", "2022" = "royalblue")) + 
+  theme_minimal() + 
+  coord_cartesian(ylim=c(185,240)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  theme(panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank()) +
+  theme(plot.title=element_text(face="bold")) +
+  theme(axis.text = element_text(face="bold"))
+```
+
+We can clearly see that the overall trend in reading scores decreasing from 2020 to 2022 are reflected across almost all demographics. With the exception of American Indian or Alaska Native students, all groups of students suffered a decrease in reading scores from 2022 to 2022. A careful examination of the grouped bar chart shows that some groups' scores lowered more significantly than others: students living in towns and suburbs scored more than 5 points lower in 2022, for example, while students living in cities had no change in average scores. Now that we have confirmed that the shift in learning modalities from 2020-2022 impacted students virtually across the board, we can do further analysis to more closely examine where scores were most impacted. 
+
+```{r, fig.width = 12, fig.height = 6}
+all_reading_data |>
+  mutate(Year = as.numeric(Year)) |>  
+  pivot_longer(cols = -Year, names_to = "Variable", values_to = "Avg_Score") |>  
+  filter(Year == 2020 | Year == 2022) |>  
+  pivot_wider(names_from = Year, values_from = Avg_Score) |>  
+  mutate(`2022` = as.numeric(`2022`), `2020` = as.numeric(`2020`)) |>  
+  drop_na(`2022`) |> 
+  drop_na(`2020`) |>  
+  mutate(Difference = `2022` - `2020`) |>  
+  filter(Variable != "Unclassified") |>
+  filter(Variable != "Information not available") |>
+  ggplot(aes(x = factor(Variable, levels = variableorder), y = Difference, fill = Difference)) +  
+  geom_bar(stat = 'identity', position = 'dodge') +  
+  labs(title = "Difference in Reading Scores: 2022 vs 2020",
+       x = "Demographic",
+       y = "Score Difference") +
+  theme_minimal() + 
+  scale_fill_gradient(low = "blue", high = "lavender") + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  theme(panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank()) +
+  theme(plot.title=element_text(face="bold")) +
+  theme(axis.text = element_text(face="bold"))
+```
+
+Here we can observe the distribution of score changes between 2020 and 2022. As we observed before, the only demographic of students whose scores improved in this period of time were American Indian or Alaska Native students. Nearly all other demographics of students exhibited a significant decrease in reading scores. We can better understand why these students fared worse during the COVID-19 pandemic by considering the consequences of the pandemic itself.
+
+One area where the divide in students is clear from this graph is students eligible for the National School Lunch Program vs students not eligible for it based on their family's economic situation. We have already observed that students eligible for this program have done worse historically in developing critical reading skills, which can be a result of numerous barriers that low income students may face: housing and food insecurity, high dropout rates in families, and lack of resources, among others. In the wake of the pandemic, each of these factors would have worsened with quarantining, and further made worse by the shift to online learning, which requires technology and access to internet that low income students may simply not be able to afford. This would explain why these students exhibited a drop in average scores more than twice as much as the drop in scores of their peers who are not part of the National Lunch program, and puts them at a greater disadvantage to continue a successful education beyond early learning. 
+
+Another area of significant divide is across students in different area types: cities, towns, suburbs, and rural areas. Students in towns and suburban areas experienced the most significant drop in reading scores, while students living in cities exhibited no difference at all. A number of pandemic-related factors may help explain this shift: quarantine, for one, may have left students in more isolated areas less motivated with the absence of social interaction that is fundamental especially to a younger person's development and mental health. More isolated areas may also lack broadband access, which creates challenges during online learning with student participation and engagement. It is important to note that there could vary likely be multicollinearly between these various variables: rural areas also tend to be less wealth areas, for example, while cities may have a mix of low income and high income students, balancing out the negative impacts of the pandemic in those areas. The observation that students living in towns had the most significant drop in reading scores across all variables is certainly an interesting one, and may require further understanding of how the data source defines "towns" and whether there is significant correlation between this variable and others.
+
+Change in scores across race are also interesting. We observe that Black and Hispanic students did slightly worse than their white peers, though there were significant drops in scores across all these groups. Asian American and Pacific Islander students, on the other hand, experienced a very mild drop in scores. This pairs with the insights from the heatmap of which racial groups have historically had lower reading scores. Understanding these observations requires understanding a comprehensive understanding of the history of race and racial structuring in the United States, continuing institutions that disadvantage students of color, and shifting patterns of immigration from the 20th century onwards. 
+
+```{r, fig.width = 12, fig.height = 6}
+all_reading_data |>
+  mutate(Year = as.numeric(Year)) |>  
+  pivot_longer(cols = -Year, names_to = "Variable", values_to = "Avg_Score") |>  
+  filter(Year == 2004 | Year == 2012 | Year == 2022) |>  
+  pivot_wider(names_from = Year, values_from = Avg_Score) |>  
+  mutate(`2022` = as.numeric(`2022`), `2012` = as.numeric(`2012`), `2004` = as.numeric(`2004`)) |>  
+  drop_na(`2022`) |> 
+  drop_na(`2012`) |> 
+  drop_na(`2004`) |> 
+  mutate(last10 = `2022` - `2012`) |>
+  mutate(prev10 = `2012` - `2004`) |>
+  select(Variable, last10, prev10) |>
+  pivot_longer(cols = -Variable, names_to = "Period", values_to = "Difference") |>
+  mutate(Period = factor(Period, levels = c("prev10", "last10"))) |>
+  filter(Variable != "Unclassified") |>
+  filter(Variable != "Information not available") |>
+  ggplot(aes(x = factor(Variable, levels = variableorder), y = Difference, fill = Period, group = Period)) + 
+  geom_bar(stat = 'identity', position = 'dodge') + 
+  labs(title = "Long Term Trends in Reading Scores Over Last  20 Years",
+       x = "Variable",
+       y = "Difference in Score Over 10 Year Period",
+       fill = "Period") +  
+  scale_fill_manual(labels = c("2004 to 2012", "2012 to 2022"), values = c("prev10" = "darkorchid1", "last10" = "royalblue")) + 
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  theme(panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank()) +
+  theme(plot.title=element_text(face="bold")) +
+  theme(axis.text = element_text(face="bold"))
+```
+
+We use this final visualization of our reading analysis as a metric to ensure our previous analysis is correct in assuming that lower reading scores in the last few years is at least in part due to the COVID-19 pandemic. This graph displays long term trends in reading scores, first showing the change in scores from 2004 to 2012 ih the purple bar and then the change from 2012 to 2022 in the blue bar. We observe that almost every variable, again with the exception of American Indian/Alaska Native students, demonstrated increasing scores in reading from 2004 to 2012 and then a decrease fom 2012 to 2022. In many cases, the magnitude of this decrease was as great as the progress these groups of students had made in the previous 10 year period. This confirms that the drop in scores from 2020 to 2022 is not a continuation of a long term trend for some of these groups but a recent development. We have detailed one prominent explanation for this decrease, namely the COVID-19 pandemic. There are a number of other reasons which may have contributed to this decrease: the introduction of common core, as mentioned earlier, for one, or the introduction of online tools that students increasingly rely on such as autocorrect and grammar checkers that may inadvertently inhibit students' development of these skills. Nonetheless, we now have a more thorough understanding of where the gap in education in terms of key critical reading and comprehension skills is most apparent today. 
