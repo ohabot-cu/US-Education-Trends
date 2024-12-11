@@ -99,22 +99,8 @@ d3.csv("https://raw.githubusercontent.com/ohabot-cu/US-Education-Trends/refs/hea
         .range(colors);
 }).catch(error => {
     console.error("Error loading the CSV file:", error);
-});
-
-const tooltip = d3.select("body")
-  .append("div")
-  .attr("class", "tooltip")
-  .style("position", "absolute")
-  .style("background", "lightgray")
-  .style("padding", "10px")
-  .style("border-radius", "5px")
-  .style("opacity", 0)
-  .style("pointer-events", "none");
-
-let year = "2004-01-01"
-
-// Load the GeoJSON data and display it
-d3.json("https://raw.githubusercontent.com/ohabot-cu/US-Education-Trends/refs/heads/main/data/us-states.geojson").then(geojson => {
+}).then(() => {
+  d3.json("https://raw.githubusercontent.com/ohabot-cu/US-Education-Trends/refs/heads/main/data/us-states.geojson").then(geojson => {
     svg.append("g")
         .attr("id", "state-polygons")
         .selectAll("path")
@@ -158,7 +144,23 @@ d3.json("https://raw.githubusercontent.com/ohabot-cu/US-Education-Trends/refs/he
             return "gray"; // Default color if not matched
         })
         .attr("stroke", "white");
-});
+  })
+})
+
+const tooltip = d3.select("body")
+  .append("div")
+  .attr("class", "tooltip")
+  .style("position", "absolute")
+  .style("background", "lightgray")
+  .style("padding", "10px")
+  .style("border-radius", "5px")
+  .style("opacity", 0)
+  .style("pointer-events", "none");
+
+let year = "2004-01-01"
+
+// Load the GeoJSON data and display it
+
 
 const slider_width = 240
 
