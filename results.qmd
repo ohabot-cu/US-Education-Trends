@@ -1,11 +1,19 @@
 # Results
 
-{r}
+```{r}
+#| echo: false
+#| output: false
 library(tidyverse)
+library(ggthemes)
 library(lubridate)
 library(ggridges)
+```
 
-#preprocessing
+## Mathematics
+
+```{r}
+#| echo: false
+#| output: false
 
 disability <- read_csv("data/mathematics/Mathematics, Age 9, Disability sta.csv", show_col_types = FALSE, name_repair = 'minimal')
 colnames(disability) <- disability[8, 1:4]
@@ -94,9 +102,10 @@ all_students <- all_students[9:24, 1:4] |>
     Category = "All Students"
   ) |>
   drop_na(`Average scale score`, Year)
+```
 
 
-{r}
+```{r}
 ggplot(all_students, aes(x = Year, y = `Average scale score`)) +
   geom_point(size = 3) +
   geom_line(group = 1, size = 1) +
@@ -111,6 +120,7 @@ ggplot(all_students, aes(x = Year, y = `Average scale score`)) +
     axis.text.x = element_text(size = 11, angle = 45, hjust = 1),
     axis.text.y = element_text(size = 11)
   )
+```
 
 
 This graph provides a clear visualization of the trend of Mathematics scores for all students aged 9. It shows a significant improvement in scores from 1980 through the early 2000s, with scores peaking around 2012. Between 2008 and 2012, there is a plateau at the highest score, suggesting a possible threshold where further improvements in score are difficult to achieve.
@@ -119,7 +129,7 @@ The drop in scores after 2012 raises questions about possible changes in factors
 
 Another possible influence to the score decline in recent years is policy;the introduction of Common Core standards starting in 2010, which reformed math and English curricula nationwide, may have influenced the trends observed. These curriculum changes could have contributed to the shifts in performance during the period. Studies have shown that the change in standards had no positive impact on student achievement and may have potentially worsened student understanding. 
 
-{r}
+```{r}
 key_categories <- combined_data |>
   filter(Subcategory %in% c("White (not Hispanic)", "Black (not Hispanic)", "Hispanic", "All students"))
 
@@ -149,11 +159,12 @@ ggplot(key_categories, aes(x = Year, y = `Average scale score`, group = Subcateg
     plot.title = element_text(size = 15, hjust = 0.5, face = "bold"),
     axis.text.x = element_text(angle = 45, hjust = 1)
   )
+```
 
 
 Adding racial subcategories into the graph gives us insight on some of the racial disparities in the educational system. Though the gap has narrowed, there is a consistent difference in test scores between White, Hispanic, and Black students. While gaps in reading test scores are experiencing reductions, mathematics has proven more resistant to change. This may be due to the subject specific challenges which might need more attention.
 
-{r}
+```{r}
 data_combined <- bind_rows(all_students, disability, gender, national_school, race, region, location, eng_status)
 
 data_combined <- data_combined |> mutate(Year = as.factor(year(Year)))
@@ -172,7 +183,7 @@ ggplot(data_combined, aes(x = Subcategory, y = Year, fill = `Average scale score
     axis.text.y = element_text(size = 8),
     legend.position = "right"
   )
-
+```
 
 
 The heat map clearly visualizes differences between all subcategories where data is available, with missing data represented as blank spaces. Warmer colors (red) highlight higher average scores, while cooler colors (blue) indicate lower scores. Some key observations include: 
@@ -183,8 +194,7 @@ The heat map clearly visualizes differences between all subcategories where data
 
 This graph also highlights the availability of data throughout time. Certain demographics which were not prioritized in earlier years are missing data entirely. For instance, data for students with disabilities only begins in 2004, reflecting historical limitations in prioritizing certain demographics, or even identifying them alltogether. Missing data can also be attributed to the lack of data collection tools. The evolution of technology and centralized systems has significantly improved the ability to collect and share data across states, enabling a more detailed analysis today.
 
-{r}
-
+```{r}
 variableorder <- unique(combined_data$Subcategory)
 diff_plot_data <- combined_data |>
   mutate(Year = year(Year)) |>
@@ -207,16 +217,13 @@ scale_fill_gradient(low = "red", high = "pink") +
     axis.text.x = element_text(angle = 45, hjust = 1),
     plot.title = element_text(size = 15, hjust = 0.5, face = "bold")
   )
+```
 
 To further explore the impact of the pandemic, we examine the shift from 2020 to 2022 in test scores. Across all categories, there is a drop in test scores and this graph visualizes the value of this shift. There was a decline in test scores across all subcategories. Some were affected more than others, with Black, Hispanic, Disabled and Suburb categories being the most affected.
 
 The sharper decline in scores after 2020 across these groups shows how the disruptions caused by the pandemic likely hightened preexisting inequities. These students may have been affected disproportionately due to less access to resources for remote learning and lack of support systems.
 
-
-```{r}
-library(tidyverse)
-library(ggthemes)
-```
+## Reading
 
 ```{r}
 all_students <- read_csv("data/reading/NAEP_All.csv")
